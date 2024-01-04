@@ -19,11 +19,11 @@ select * from categoria;
 select * from formas_pagamento;
 
 -- insert na tabela contas a pagar:
-insert into contas_pagar (id_van,id_categoria,id_pagamento,descricao,valor_titulo,valor_pago) values (2,2,1,'pagamento funcionario',1200,1200);
-insert into contas_pagar (id_van,id_categoria,id_pagamento,descricao,valor_titulo) values(1,3,1,'Abastecimento',500),
-(1,1,2,'troca da bitela dianteira',120.50);
+insert into contas_pagar (id_van,id_categoria,id_pagamento,descricao,valor_titulo,valor_pago,data_vencimento,data_pagamento) values (2,2,1,'pagamento funcionario',1200,1200,'2024-01-10','2024-01-10');
+insert into contas_pagar (id_van,id_categoria,id_pagamento,descricao,valor_titulo,data_vencimento) values(1,3,1,'Abastecimento',500,'2024-01-15'),
+(1,1,2,'troca da bitela dianteira',120.50,'2024-01-20');
 
 -- insert na tabela contas a receber:
-insert into contas_receber (id_cliente,id_categoria,id_pagamento,descricao,valor_titulo) values(1,4,1,'recebimento cliente',120);
-insert into contas_receber (id_cliente,id_categoria,id_pagamento,data_recebimento,descricao,valor_titulo,valor_pago) values(1,6,2,'2024-01-04','frete',80,80);
+insert into contas_receber (id_cliente,id_categoria,id_pagamento,descricao,valor_titulo,data_vencimento) values(1,4,1,'recebimento cliente',120,'2024-01-08');
+insert into contas_receber (id_cliente,id_categoria,id_pagamento,data_recebimento,descricao,valor_titulo,valor_pago,data_vencimento) values(1,6,2,'2024-01-04','frete',80,80,'2024-01-08');
 
