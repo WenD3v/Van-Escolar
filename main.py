@@ -10,26 +10,190 @@ app.config['JSON_SORT_KEY'] = False
 @app.route('/clientes', methods=['GET'])
 def get_carros():
     my_cursor = mydb.cursor()
-    my_cursor.execute('select * from cliente')
-    meus_clientes = my_cursor.fetchall()
-    clientes = list()
-    for cliente in meus_clientes:
-        clientes.append(
-            {
-                'id_cliente': cliente[0],
-                'ativo': cliente[1],
-                'data_cadastro': cliente[2],
-                'cpf': cliente[3],
-                'nome': cliente[4],
-                'celular': cliente[5],
-                'telefone' : cliente[6]
-            }
-        )
+    my_cursor.execute("""
+    select id_cliente, ativo, data_cadastro, cpf, nome, celular, telefone from cliente
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    clients = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in clients]
+    my_cursor.close()
     return make_response(
         jsonify(
-            mensagem='lista de clientes',
-            dados=clientes
+            data
         )
     )
 
-app.run()
+@app.route('/motoristas', methods=['GET'])
+def get_motoristas():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+    select id_motorista, ativo, data_cadastro, cpf, nome, celular, telefone from motorista
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    clients = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in clients]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/vans', methods=['GET'])
+def get_vans():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+        select V.id_van, V.ativo, V.data_cadastro, V.id_motorista, M.nome as motorista, V.placa, V.modelo, V.km_atual from Van as V
+        inner join motorista as M on M.id_motorista = V.id_motorista
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    clients = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in clients]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/categorias', methods=['GET'])
+def get_categorias():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("select id_categoria, descricao, tipo_categoria from categoria order by id_categoria")
+    columns = [column[0] for column in my_cursor.description]
+    clients = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in clients]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/contas_receber',methods=['GET'])
+def get_contas_receber():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+        select T.status_titulo as status, T.Id_contas_receber, C.nome as cliente, Cat.descricao as categoria, T.descricao,T.Data_Vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_recebimento, P.descricao as pagamento  from Contas_receber as T
+        inner join Cliente as C on C.Id_Cliente = T.Id_cliente
+        inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
+        inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
+        order by T.Data_vencimento;
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    minhas_contas = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in minhas_contas]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/contas_receber/quitados',methods=['GET'])
+def get_contas_receber_quitados():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+        select T.Id_contas_receber, C.nome as cliente, Cat.descricao as categoria, T.descricao,T.Data_vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_Recebimento, P.descricao as pagamento  from Contas_receber as T
+        inner join Cliente as C on C.Id_Cliente = T.Id_cliente
+        inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
+        inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
+        where T.status_titulo = 'quitado'
+        order by T.Data_Vencimento;
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    minhas_contas = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in minhas_contas]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/contas_receber/abertos',methods=['GET'])
+def get_contas_receber_abertos():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+        select T.Id_contas_receber, C.nome as cliente, Cat.descricao as categoria, T.descricao,T.Data_vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_Recebimento, P.descricao as pagamento  from Contas_receber as T
+        inner join Cliente as C on C.Id_Cliente = T.Id_cliente
+        inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
+        inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
+        where T.status_titulo = 'em aberto'
+        order by T.Data_Vencimento;
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    minhas_contas = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in minhas_contas]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/contas_pagar',methods=['GET'])
+def get_contas_pagar():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+        select T.Status_titulo as status, T.Id_contas_pagar, V.placa, Cat.descricao as categoria, T.descricao,T.Data_vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_Pagamento, P.descricao as pagamento  from Contas_Pagar as T
+        inner join Van as V on V.Id_Van = T.ID_van
+        inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
+        inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
+        order by T.Data_vencimento;
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    minhas_contas = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in minhas_contas]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/contas_pagar/quitados',methods=['GET'])
+def get_contas_pagar_quitados():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+        select T.Id_contas_pagar, V.placa, Cat.descricao as categoria, T.descricao,T.Data_vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_pagamento, P.descricao as pagamento  from Contas_Pagar as T
+        inner join Van as V on V.Id_Van = T.ID_van
+        inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
+        inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
+        where T.status_titulo = 'quitado'
+        order by T.data_vencimento;
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    minhas_contas = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in minhas_contas]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+@app.route('/contas_pagar/abertos',methods=['GET'])
+def get_contas_pagar_abertos():
+    my_cursor = mydb.cursor()
+    my_cursor.execute("""
+        select T.Id_contas_pagar, V.placa, Cat.descricao as categoria, T.descricao,T.Data_vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_pagamento, P.descricao as pagamento  from Contas_Pagar as T
+        inner join Van as V on V.Id_Van = T.ID_van
+        inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
+        inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
+        where T.status_titulo = 'em aberto'
+        order by T.data_vencimento;
+    """)
+    columns = [column[0] for column in my_cursor.description]
+    minhas_contas = my_cursor.fetchall()
+    data = [dict(zip(columns,row)) for row in minhas_contas]
+    my_cursor.close()
+    return make_response(
+        jsonify(
+            data
+        )
+    )
+
+if __name__ == '__main__':
+    # Permite conexões de outros dispositivos na rede
+    app.run(host='0.0.0.0', port=5000)

@@ -15,7 +15,7 @@ where T.status_titulo = 'quitado'
 order by T.Data_Vencimento;
 
 -- seleção contas a receber todos:
-select T.Id_contas_receber, C.nome, Cat.descricao as categoria, T.descricao,T.Data_Vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_recebimento, P.descricao  from Contas_receber as T
+select T.Id_contas_receber,T.Status_titulo, C.nome, Cat.descricao as categoria, T.descricao,T.Data_Vencimento, T.Valor_titulo, T.Valor_Pago,T.Data_recebimento, P.descricao  from Contas_receber as T
 inner join Cliente as C on C.Id_Cliente = T.Id_cliente
 inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
 inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
@@ -43,3 +43,7 @@ inner join Categoria as Cat on Cat.id_categoria = T.id_categoria
 inner join Formas_pagamento as P on P.id_pagamento = T.id_pagamento
 where T.status_titulo = 'quitado'
 order by T.data_vencimento;
+
+-- select das vans:
+select V.id_van, V.ativo, V.data_cadastro, V.id_motorista, M.nome as motorista, V.placa, V.modelo, V.km_atual from Van as V
+inner join motorista as M on M.id_motorista = V.id_motorista
