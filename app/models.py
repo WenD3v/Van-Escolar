@@ -91,6 +91,85 @@ class FormasPagamento(db.Model):
 
     def serialize(self):
         return{
-            'id_pagamento': self.id_pagamento,
-            'descricao': self.descricao
+            'ID_PAGAMENTO': self.id_pagamento,
+            'DESCRICAO': self.descricao
+        }
+    
+class ContasReceber(db.Model):
+    __tablename__ =  'contas_receber'
+    #Colunas da tabela contas pagar
+    id_contas_receber = db.Column(db.Integer, primary_key=True,autoincrement = True)
+    id_cliente = db.Column(db.Integer, nullable=False)
+    id_categoria = db.Column(db.Integer, nullable=False)
+    id_pagamento = db.Column(db.Integer, nullable=False)
+    data_cadastro = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    data_vencimento = db.Column(db.DateTime, nullable=False)
+    data_recebimento = db.Column(db.Date)
+    descricao = db.Column(db.String(120))
+    valor_titulo = db.Column(db.Numeric(precision=10,scale=3), nullable=False)
+    valor_pago = db.Column(db.Numeric(precision=10, scale=3))
+    status_titulo = db.Column(db.Enum('em aberto','quitado'), nullable=False)
+
+    #relações
+    cliente = db.relationship('Cliente', foreign_keys=[id_cliente], backref=db.backref('ContasReceber', lazy='dynamic'), primaryjoin="ContasReceber.id_cliente == Cliente.id_cliente")
+    categoria = db.relationship('Categoria', foreign_keys=[id_categoria], backref=db.backref('ContasReceber', lazy='dynamic'), primaryjoin="ContasReceber.id_categoria == Categoria.id_categoria")
+    pagamento = db.relationship('FormasPagamento', foreign_keys=[id_pagamento], backref=db.backref('ContasReceber', lazy='dynamic'), primaryjoin="ContasReceber.id_pagamento == FormasPagamento.id_pagamento")
+
+    def serialize(self):
+        return{
+            'ID_CONTAS_RECEBER': self.id_contas_receber,
+            'DATA_CADASTRO': self.data_cadastro.strftime('%d/%m/%Y %H:%M:%S'), 
+            'STATUS_TITULO': self.status_titulo,
+            'ID_CLIENTE': self.id_cliente,
+            'NOME': self.cliente.nome,
+            'ID_CATEGORIA': self.id_categoria,
+            'CATEGORIA': self.categoria.descricao,
+            'DESCRICAO': self.descricao,
+            'DATA_VENCIMENTO': self.data_vencimento.strftime('%d/%m/%Y %H:%M:%S'),
+            'VALOR_TITULO': float(self.valor_titulo),
+            'VALOR_PAGO' : float(self.valor_pago) if self.valor_pago is not None else None,
+            'DATA_RECEBIMENTO': self.data_recebimento.strftime('%d/%m/%Y') if self.data_recebimento is not None else None,
+            'ID_PAGAMENTO': self.id_pagamento,
+            'PAGAMENTO': self.pagamento.descricao
+            
+        }
+
+class ContasPagar(db.Model):
+    __tablename__ =  'contas_pagar'
+    #Colunas da tabela contas pagar
+    id_contas_pagar = db.Column(db.Integer, primary_key=True,autoincrement = True)
+    id_van = db.Column(db.Integer, nullable=False)
+    id_categoria = db.Column(db.Integer, nullable=False)
+    id_pagamento = db.Column(db.Integer, nullable=False)
+    data_cadastro = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    data_vencimento = db.Column(db.DateTime, nullable=False)
+    data_pagamento = db.Column(db.Date)
+    descricao = db.Column(db.String(120))
+    valor_titulo = db.Column(db.Numeric(precision=10,scale=3), nullable=False)
+    valor_pago = db.Column(db.Numeric(precision=10, scale=3))
+    status_titulo = db.Column(db.Enum('em aberto','quitado'), nullable=False)
+
+    #relações
+    van = db.relationship('Van', foreign_keys=[id_van], backref=db.backref('ContasPagar', lazy='dynamic'), primaryjoin="ContasPagar.id_van == Van.id_van")
+    categoria = db.relationship('Categoria', foreign_keys=[id_categoria], backref=db.backref('ContasPagar', lazy='dynamic'), primaryjoin="ContasPagar.id_categoria == Categoria.id_categoria")
+    pagamento = db.relationship('FormasPagamento', foreign_keys=[id_pagamento], backref=db.backref('ContasPagar', lazy='dynamic'), primaryjoin="ContasPagar.id_pagamento == FormasPagamento.id_pagamento")
+
+    def serialize(self):
+        return{
+            'ID_CONTAS_PAGAR': self.id_contas_pagar,
+            'DATA_CADASTRO': self.data_cadastro.strftime('%d/%m/%Y %H:%M:%S'), 
+            'STATUS_TITULO': self.status_titulo,
+            'ID_VAN': self.id_van,
+            'PLACA': self.van.placa,
+            'MOTORISTA' : self.van.motorista.nome,
+            'ID_CATEGORIA': self.id_categoria,
+            'CATEGORIA': self.categoria.descricao,
+            'DESCRICAO': self.descricao,
+            'DATA_VENCIMENTO': self.data_vencimento.strftime('%d/%m/%Y %H:%M:%S'),
+            'VALOR_TITULO': float(self.valor_titulo),
+            'VALOR_PAGO' : float(self.valor_pago) if self.valor_pago is not None else None,
+            'DATA_PAGAMENTO': self.data_pagamento.strftime('%d/%m/%Y') if self.data_pagamento is not None else None,
+            'ID_PAGAMENTO': self.id_pagamento,
+            'PAGAMENTO': self.pagamento.descricao
+            
         }
