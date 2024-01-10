@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify, make_response
-from .models import Cliente,Motorista,Van,Categoria,FormasPagamento,ContasReceber,ContasPagar
+from flask import Blueprint, jsonify, make_response, request
+from .models import Cliente,Motorista,Van,Categoria,FormasPagamento,ContasReceber,ContasPagar,db
 
 clientes_bp = Blueprint('clientes',__name__)
 motoristas_bp = Blueprint('motoristas',__name__)
@@ -27,6 +27,21 @@ def get_cliente_id(id_cliente):
         )
     else:
         return jsonify({'message': 'Cliente não encontrado'}), 404
+    
+@clientes_bp.route('/clientes/',methods=['POST'])
+def cadastra_cliente():
+    dados = request.json
+    novo_cliente = Cliente(
+        cpf=dados.get('CPF'),
+        nome=dados.get('NOME'),
+        celular=dados.get('CELULAR'),
+        telefone=dados.get('TELEFONE')
+    )
+    db.session.add(novo_cliente)
+    db.session.commit()
+
+    serialized_novo_cliente = novo_cliente.serialize()
+    return make_response(jsonify(serialized_novo_cliente),201)
 
 @motoristas_bp.route('/motoristas/',methods=['GET'])
 def get_motoristas():
