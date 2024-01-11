@@ -1,6 +1,12 @@
 from flask import Flask
 from .models import db
-from .routes import clientes_bp,motoristas_bp,vans_bp,categorias_bp,pagamentos_bp,contasreceber_bp,contaspagar_bp
+from app.blueprints.clientes import clientes_bp
+from app.blueprints.motoristas import motoristas_bp
+from app.blueprints.vans import vans_bp
+from app.blueprints.categorias import categorias_bp
+from app.blueprints.pagamentos import pagamentos_bp
+from app.blueprints.contasreceber import contasreceber_bp
+from app.blueprints.contaspagar import contaspagar_bp
 from .config import Config
 
 def create_app():
