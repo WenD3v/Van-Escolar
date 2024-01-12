@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from .models import db
 from app.blueprints.clientes import clientes_bp
 from app.blueprints.motoristas import motoristas_bp
@@ -11,6 +12,7 @@ from .config import Config
 
 def create_app():
     app = Flask(__name__)
+    
     app.config.from_object(Config)
     app.config['JSON_SORT_KEY'] = False
     db.init_app(app)
@@ -21,4 +23,5 @@ def create_app():
     app.register_blueprint(pagamentos_bp)
     app.register_blueprint(contasreceber_bp)
     app.register_blueprint(contaspagar_bp)
+    CORS(app)
     return app
