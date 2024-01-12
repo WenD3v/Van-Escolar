@@ -36,3 +36,22 @@ def cadastra_cliente():
 
     serialized_novo_cliente = novo_cliente.serialize()
     return make_response(jsonify(serialized_novo_cliente),201)
+
+@clientes_bp.route('/clientes/<int:id_cliente>',methods=['PUT'])
+def edita_cliente(id_cliente):
+    cliente = Cliente.query.get(id_cliente)
+    if cliente:
+        novos_dados = request.json
+        
+        cliente.cpf=novos_dados.get('CPF')
+        cliente.nome=novos_dados.get('NOME')
+        cliente.celular=novos_dados.get('CELULAR')
+        cliente.telefone=novos_dados.get('TELEFONE')
+        
+        db.session.commit()
+
+        serialized_novo_cliente = cliente.serialize()
+        return make_response(jsonify(serialized_novo_cliente),201)
+    
+    else:
+        return jsonify({'message':'Cliente não encontrado'}), 404
