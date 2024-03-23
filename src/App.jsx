@@ -1,7 +1,7 @@
-import Navbar  from './components/Navbar'
+
 import { Outlet } from 'react-router-dom'
 import {MenuUnfoldOutlined,MenuFoldOutlined} from '@ant-design/icons';
-import {Button, Layout} from 'antd'
+import {Button, Layout, theme} from 'antd'
 import Logo from './components/Logo';
 import MenuList from './components/MenuList';
 import ToggleThemeButton from './components/ToggleThemeButton';
@@ -15,19 +15,28 @@ function App() {
   const toggleTheme = ()=>{
     setDarkTheme(!darkTheme)
   }
+
+  const {
+    token: {colorBgContainer},
+  } = theme.useToken();
+
   return (
     <>
      <Layout>
-      <Sider theme={darkTheme? 'dark':'light'} className='sidebar'>
+      <Sider collapsed={collapsed} collapsible trigger={null} theme={darkTheme? 'dark':'light'} className='sidebar'>
         <Logo/>
         <MenuList darkTheme={darkTheme}/>
         <ToggleThemeButton darkTheme={darkTheme} toggleTheme={toggleTheme}/>
       </Sider>
       <Layout>
-        <Header>
-          <Button type='text' icon={collapsed ? 
-            <MenuUnfoldOutlined/> : <MenuUnfoldOutlined/> }/>
+        <Header style={{padding: 0, background: colorBgContainer}}>
+          <Button
+            type='text'
+            className='toggle'
+            onClick={()=> setCollapsed(!collapsed)}
+            icon={collapsed ? <MenuUnfoldOutlined/> : <MenuFoldOutlined/> }/>
         </Header>
+        <Outlet />
       </Layout>
      </Layout>
     </>
