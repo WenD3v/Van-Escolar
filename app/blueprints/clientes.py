@@ -55,3 +55,17 @@ def edita_cliente(id_cliente):
     
     else:
         return jsonify({'message':'Cliente não encontrado'}), 404
+    
+
+@clientes_bp.route('/clientes/<int:id_cliente>',methods=['DELETE'])
+def remove_cliente(id_cliente):
+    cliente = Cliente.query.get(id_cliente)
+    if cliente:
+        db.session.delete(cliente)
+        db.session.commit()
+
+        serialized_novo_cliente = cliente.serialize()
+        return make_response(jsonify(serialized_novo_cliente),201)
+    
+    else:
+        return jsonify({'message':'Cliente não encontrado'}), 404
